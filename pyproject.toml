@@ -1,12 +1,33 @@
-[tool.black]
-line-length = 99
-exclude = '''
-/(
-    \.git
-  | __pycache__
-  | build
-  | dist
-  | experimental
-  | third_party
-)/
-'''
+[tool.poetry]
+name = "esm"
+version = "0.1.0"
+description = "Evolutionary Scale Modeling (esm): Pretrained language models for proteins. From Facebook AI Research."
+authors = ["Facebook AI Research"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pytorch-lightning = "^2.2.4"
+biopython = "^1.83"
+dm-tree = "^0.1.8"
+omegaconf = "^2.3.0"
+deepspeed = "^0.14.2"
+ml-collections = "^0.1.1"
+einops = "^0.8.0"
+scipy = "^1.13.0"
+dllogger = {git = "https://github.com/NVIDIA/dllogger.git"}
+modelcif = "^0.9"
+biotite = "^0.40.0"
+
+
+
+[tool.poetry.dev-dependencies]
+python = "^3.11"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[[tool.poetry.scripts]]
+esm-extract = "esm.scripts.extract:main"
+esm-fold = "esm.scripts.fold:main"
