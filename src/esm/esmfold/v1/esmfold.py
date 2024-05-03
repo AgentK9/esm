@@ -3,7 +3,7 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 import typing as T
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import partial
 
 import torch
@@ -11,37 +11,37 @@ import torch.nn as nn
 from torch.nn import LayerNorm
 
 import esm
-from esm import Alphabet
-from esm.esmfold.v1 import categorical_lddt
-from esm.esmfold.v1 import (
+from esm.data import Alphabet
+from esm.esmfold.v1.categorical_mixture import categorical_lddt
+from esm.esmfold.v1.misc import (
     batch_encode_sequences,
     collate_dense_tensors,
     output_to_pdb,
 )
-from esm.esmfold.v1 import FoldingTrunk, FoldingTrunkConfig
-from openfold.data.data_transforms import make_atom14_masks
-from openfold.np import residue_constants
-from openfold.utils.loss import compute_predicted_aligned_error, compute_tm
+from esm.esmfold.v1.trunk import FoldingTrunk, FoldingTrunkConfig
+from esm.openfold.data.data_transforms import make_atom14_masks
+from esm.openfold.np import residue_constants
+from esm.openfold.utils.loss import compute_predicted_aligned_error, compute_tm
+from esm.pretrained import load_model_and_alphabet
 
 
 @dataclass
 class ESMFoldConfig:
-    trunk: T.Any = FoldingTrunkConfig()
+    trunk: T.Any = field(default_factory=FoldingTrunkConfig)
     lddt_head_hid_dim: int = 128
 
 
-load_fn = esm.pretrained.load_model_and_alphabet
 esm_registry = {
-    "esm2_8M": partial(load_fn, "esm2_t6_8M_UR50D_500K"),
+    "esm2_8M": partial(load_model_and_alphabet, "esm2_t6_8M_UR50D_500K"),
     "esm2_8M_270K": esm.pretrained.esm2_t6_8M_UR50D,
-    "esm2_35M": partial(load_fn, "esm2_t12_35M_UR50D_500K"),
+    "esm2_35M": partial(load_model_and_alphabet, "esm2_t12_35M_UR50D_500K"),
     "esm2_35M_270K": esm.pretrained.esm2_t12_35M_UR50D,
-    "esm2_150M": partial(load_fn, "esm2_t30_150M_UR50D_500K"),
-    "esm2_150M_270K": partial(load_fn, "esm2_t30_150M_UR50D_270K"),
+    "esm2_150M": partial(load_model_and_alphabet, "esm2_t30_150M_UR50D_500K"),
+    "esm2_150M_270K": partial(load_model_and_alphabet, "esm2_t30_150M_UR50D_270K"),
     "esm2_650M": esm.pretrained.esm2_t33_650M_UR50D,
-    "esm2_650M_270K": partial(load_fn, "esm2_t33_650M_270K_UR50D"),
+    "esm2_650M_270K": partial(load_model_and_alphabet, "esm2_t33_650M_270K_UR50D"),
     "esm2_3B": esm.pretrained.esm2_t36_3B_UR50D,
-    "esm2_3B_270K": partial(load_fn, "esm2_t36_3B_UR50D_500K"),
+    "esm2_3B_270K": partial(load_model_and_alphabet, "esm2_t36_3B_UR50D_500K"),
     "esm2_15B": esm.pretrained.esm2_t48_15B_UR50D,
 }
 

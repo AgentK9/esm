@@ -11,8 +11,11 @@ from pathlib import Path
 
 import torch
 
-import esm
-from esm.model import ESM2
+from esm.data import Alphabet
+from esm.inverse_folding.gvp_transformer import GVPTransformerModel
+from esm.model.esm1 import ProteinBertModel
+from esm.model.esm2 import ESM2
+from esm.model.msa_transformer import MSATransformer
 
 
 def _has_regression_weights(model_name):
@@ -97,9 +100,8 @@ def has_emb_layer_norm_before(model_state):
 
 
 def _load_model_and_alphabet_core_v1(model_data):
-    import esm  # since esm.inverse_folding is imported below, you actually have to re-import esm here
 
-    alphabet = esm.Alphabet.from_architecture(model_data["args"].arch)
+    alphabet = Alphabet.from_architecture(model_data["args"].arch)
 
     if model_data["args"].arch == "roberta_large":
         # upgrade state dict
@@ -118,7 +120,7 @@ def _load_model_and_alphabet_core_v1(model_data):
         }
         model_state["embed_tokens.weight"][alphabet.mask_idx].zero_()  # For token drop
         model_args["emb_layer_norm_before"] = has_emb_layer_norm_before(model_state)
-        model_type = esm.ProteinBertModel
+        model_type = ProteinBertModel
 
     elif model_data["args"].arch == "protein_bert_base":
 
@@ -131,7 +133,7 @@ def _load_model_and_alphabet_core_v1(model_data):
 
         model_args = {pra(arg[0]): arg[1] for arg in vars(model_data["args"]).items()}
         model_state = {prs(arg[0]): arg[1] for arg in model_data["model"].items()}
-        model_type = esm.ProteinBertModel
+        model_type = ProteinBertModel
     elif model_data["args"].arch == "msa_transformer":
 
         # upgrade state dict
@@ -161,12 +163,11 @@ def _load_model_and_alphabet_core_v1(model_data):
                 emb_dim  # initial release, bug: emb_dim==1
             )
 
-        model_type = esm.MSATransformer
+        model_type = MSATransformer
 
     elif "invariant_gvp" in model_data["args"].arch:
-        import esm.inverse_folding
 
-        model_type = esm.inverse_folding.gvp_transformer.GVPTransformerModel
+        model_type = GVPTransformerModel
         model_args = vars(model_data["args"])  # convert Namespace -> dict
 
         def update_name(s):
@@ -212,7 +213,7 @@ def _load_model_and_alphabet_core_v2(model_data):
     cfg = model_data["cfg"]["model"]
     state_dict = model_data["model"]
     state_dict = upgrade_state_dict(state_dict)
-    alphabet = esm.data.Alphabet.from_architecture("ESM-1b")
+    alphabet = Alphabet.from_architecture("ESM-1b")
     model = ESM2(
         num_layers=cfg.encoder_layers,
         embed_dim=cfg.encoder_embed_dim,

@@ -4,10 +4,11 @@
 # LICENSE file in the root directory of this source tree.
 import typing as T
 from contextlib import ExitStack
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import torch
 import torch.nn as nn
+
 from esm.openfold.model.structure_module import StructureModule
 
 from esm.esmfold.v1.tri_self_attn_block import TriangularSelfAttentionBlock
@@ -48,7 +49,9 @@ class FoldingTrunkConfig:
     max_recycles: int = 4
     chunk_size: T.Optional[int] = None
 
-    structure_module: StructureModuleConfig = StructureModuleConfig()
+    structure_module: StructureModuleConfig = field(
+        default_factory=StructureModuleConfig
+    )
 
 
 def get_axial_mask(mask):

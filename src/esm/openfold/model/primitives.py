@@ -30,7 +30,8 @@ import torch.nn as nn
 from scipy.stats import truncnorm
 
 from esm.openfold.utils.checkpointing import get_checkpoint_fn
-from esm.openfold.utils.kernel.attention_core import attention_core
+
+# from esm.openfold.utils.kernel.attention_core import attention_core
 from esm.openfold.utils.precision import is_fp16_enabled
 from esm.openfold.utils.tensor import (
     permute_final_dims,
@@ -514,8 +515,9 @@ class Attention(nn.Module):
                     "If use_memory_efficient_kernel is True, you may only "
                     "provide up to two bias terms"
                 )
-            o = attention_core(q, k, v, *((biases + [None] * 2)[:2]))
-            o = o.transpose(-2, -3)
+            raise EnvironmentError("Memory-efficient kernel is not supported")
+            # o = attention_core(q, k, v, *((biases + [None] * 2)[:2]))
+            # o = o.transpose(-2, -3)
         elif use_deepspeed_evo_attention:
             if len(biases) > 2:
                 raise ValueError(

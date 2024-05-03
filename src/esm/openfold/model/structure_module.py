@@ -12,11 +12,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from functools import reduce
-import importlib
 import math
 import sys
-from operator import mul
 
 import torch
 import torch.nn as nn
@@ -44,7 +41,7 @@ from esm.openfold.utils.tensor import (
     flatten_final_dims,
 )
 
-attn_core_inplace_cuda = importlib.import_module("attn_core_inplace_cuda")
+# attn_core_inplace_cuda = importlib.import_module("attn_core_inplace_cuda")
 
 
 class AngleResnetBlock(nn.Module):
@@ -428,11 +425,12 @@ class InvariantPointAttention(nn.Module):
             del pt_att
             a += square_mask.unsqueeze(-3)
             # in-place softmax
-            attn_core_inplace_cuda.forward_(
-                a,
-                reduce(mul, a.shape[:-1]),
-                a.shape[-1],
-            )
+            raise EnvironmentError("In-place softmax not supported")
+            # attn_core_inplace_cuda.forward_(
+            #     a,
+            #     reduce(mul, a.shape[:-1]),
+            #     a.shape[-1],
+            # )
         else:
             a = a + pt_att
             a = a + square_mask.unsqueeze(-3)

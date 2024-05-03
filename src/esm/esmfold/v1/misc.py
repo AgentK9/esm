@@ -9,10 +9,10 @@ import torch
 import torch.nn.functional as F
 from einops import rearrange, repeat
 from torch import nn
-from openfold.np import residue_constants
-from openfold.np.protein import Protein as OFProtein
-from openfold.np.protein import to_pdb
-from openfold.utils.feats import atom14_to_atom37
+from esm.openfold.np import residue_constants
+from esm.openfold.np.protein import Protein as OFProtein
+from esm.openfold.np.protein import to_pdb
+from esm.openfold.utils.feats import atom14_to_atom37
 
 
 def encode_sequence(
