@@ -114,9 +114,7 @@ class TriangleMultiplicativeUpdate(BaseTriangleMultiplicativeUpdate):
             c:
                 Hidden channel dimension
         """
-        super().__init__(
-            c_z=c_z, c_hidden=c_hidden, _outgoing=_outgoing
-        )
+        super().__init__(c_z=c_z, c_hidden=c_hidden, _outgoing=_outgoing)
 
         self.linear_a_p = Linear(self.c_z, self.c_hidden)
         self.linear_a_g = Linear(self.c_z, self.c_hidden, init="gating")

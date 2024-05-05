@@ -48,7 +48,9 @@ def main():
     length = sum(lengths)
     print("length", length)
 
-    model_path = Path(__file__).parent.parent.parent.parent / "working" / "esmfold.model"
+    model_path = (
+        Path(__file__).parent.parent.parent.parent / "working" / "esmfold.model"
+    )
 
     model = torch.load(str(model_path))
     model.esm.float()
@@ -69,7 +71,7 @@ def main():
         output = {key: value.cpu() for key, value in output.items()}
         pdbs = model.output_to_pdb(output)
         for header, seq, pdb_string, mean_plddt, ptm in zip(
-                headers, sequences, pdbs, output["mean_plddt"], output["ptm"]
+            headers, sequences, pdbs, output["mean_plddt"], output["ptm"]
         ):
             output_file = Path(f"{header}.pdb")
             output_file.write_text(pdb_string)
