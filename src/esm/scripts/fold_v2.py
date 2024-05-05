@@ -4,6 +4,7 @@ import hashlib
 import re
 import numpy as np
 import torch
+import click
 from scipy.special import softmax
 
 from esm.scripts.fold import create_batched_sequence_datasest
@@ -34,8 +35,28 @@ def get_hash(x):
 alphabet_list = list(ascii_uppercase + ascii_lowercase)
 
 
-def main():
-    sequence = "GWSTELEKHREELKEFLKKEGITNVEIRIDNGRLEVRVEGGTERLKRFLEELRQKLEKKGYTVDIKIE"
+@click.command()
+@click.version_option()
+@click.option(
+    "--sequence-path",
+    type=click.Path(exists=True, path_type=Path),
+    help="Path to the sequence file",
+    required=True,
+)
+@click.option(
+    "--model-path",
+    type=click.Path(exists=True, path_type=Path),
+    help="Path to the model file",
+    required=True,
+)
+@click.option(
+    "--output-path",
+    type=click.Path(exists=False, path_type=Path),
+    help="Path to the output file",
+    required=True,
+)
+def main(sequence_path: Path, model_path: Path, output_path: Path):
+    sequence = sequence_path.read_text()
     sequence = re.sub("[^A-Z:]", "", sequence.replace("/", ":").upper())
     sequence = re.sub(":+", ":", sequence)
     sequence = re.sub("^[:]+", "", sequence)
@@ -47,10 +68,6 @@ def main():
     lengths = [len(s) for s in seqs]
     length = sum(lengths)
     print("length", length)
-
-    model_path = (
-        Path(__file__).parent.parent.parent.parent / "working" / "esmfold.model"
-    )
 
     model = torch.load(str(model_path))
     model.esm.float()
@@ -73,8 +90,7 @@ def main():
         for header, seq, pdb_string, mean_plddt, ptm in zip(
             headers, sequences, pdbs, output["mean_plddt"], output["ptm"]
         ):
-            output_file = Path(f"{header}.pdb")
-            output_file.write_text(pdb_string)
+            output_path.write_text(pdb_string)
             num_completed += 1
 
 
