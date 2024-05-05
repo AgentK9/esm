@@ -18,13 +18,13 @@ from typing import Dict, Text, Tuple
 
 import torch
 
-from esm.openfold.np import residue_constants as rc
-from esm.openfold.utils import tensor
+from openfold.np import residue_constants as rc
+from openfold.utils import tensor
 import numpy as np
 
-from esm.openfold.utils.geometry.rigid_matrix_vector import Rigid3Array
-from esm.openfold.utils.geometry.rotation_matrix import Rot3Array
-from esm.openfold.utils.geometry.vector import (
+from openfold.utils.geometry.rigid_matrix_vector import Rigid3Array
+from openfold.utils.geometry.rotation_matrix import Rot3Array
+from openfold.utils.geometry.vector import (
     Vec3Array,
     dihedral_angle,
     euclidean_distance,

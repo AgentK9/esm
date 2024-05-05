@@ -19,9 +19,9 @@ from esm.esmfold.v1.misc import (
     output_to_pdb,
 )
 from esm.esmfold.v1.trunk import FoldingTrunk, FoldingTrunkConfig
-from esm.openfold.data.data_transforms import make_atom14_masks
-from esm.openfold.np import residue_constants
-from esm.openfold.utils.loss import compute_predicted_aligned_error, compute_tm
+from openfold.data.data_transforms import make_atom14_masks
+from openfold.np import residue_constants
+from openfold import compute_predicted_aligned_error, compute_tm
 from esm.pretrained import load_model_and_alphabet
 
 

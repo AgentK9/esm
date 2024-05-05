@@ -1,10 +1,10 @@
 import torch
 import torch.nn as nn
 
-from esm.openfold.model.primitives import Linear
-from esm.openfold.utils.geometry.rigid_matrix_vector import Rigid3Array
-from esm.openfold.utils.geometry.rotation_matrix import Rot3Array
-from esm.openfold.utils.geometry.vector import Vec3Array
+from openfold.model.primitives import Linear
+from openfold.utils.geometry.rigid_matrix_vector import Rigid3Array
+from openfold.utils.geometry.rotation_matrix import Rot3Array
+from openfold.utils.geometry.vector import Vec3Array
 
 
 class QuatRigid(nn.Module):

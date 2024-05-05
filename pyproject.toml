@@ -18,6 +18,9 @@ scipy = "^1.13.0"
 dllogger = {git = "https://github.com/NVIDIA/dllogger.git"}
 modelcif = "^0.9"
 biotite = "^0.40.0"
+torch-geometric = "^2.5.3"
+jaxlib = "^0.4.26"
+jax = "^0.4.26"
 
 
 
@@ -31,3 +34,4 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.scripts]
 esm-extract = "esm.scripts.extract:main"
 esm-fold = "esm.scripts.fold:main"
+esm_fold = "esm.scripts.fold_v2:main"

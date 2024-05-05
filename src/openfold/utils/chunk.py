@@ -18,7 +18,7 @@ from typing import Tuple, Callable, Any, Dict, Sequence, Optional
 
 import torch
 
-from esm.openfold.utils.tensor import (
+from openfold.utils.tensor import (
     tree_map,
     tensor_tree_map,
 )

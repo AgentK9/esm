@@ -9,10 +9,10 @@ import torch
 import torch.nn.functional as F
 from einops import rearrange, repeat
 from torch import nn
-from esm.openfold.np import residue_constants
-from esm.openfold.np.protein import Protein as OFProtein
-from esm.openfold.np.protein import to_pdb
-from esm.openfold.utils.feats import atom14_to_atom37
+from openfold.np import residue_constants
+from openfold.np.protein import Protein as OFProtein
+from openfold.np.protein import to_pdb
+from openfold import atom14_to_atom37
 
 
 def encode_sequence(
@@ -197,7 +197,7 @@ class Attention(nn.Module):
             mask = repeat(
                 mask, "... lk -> ... h lq lk", h=self.num_heads, lq=q.shape[-2]
             )
-            a = a.masked_fill(mask is False, -np.inf)
+            a = a.masked_fill(mask == False, -np.inf)
 
         a = F.softmax(a, dim=-1)
 

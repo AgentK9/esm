@@ -19,8 +19,8 @@ from typing import Union, List
 
 import torch
 
-from esm.openfold.utils.geometry import rotation_matrix
-from esm.openfold.utils.geometry import vector
+from openfold.utils.geometry import rotation_matrix
+from openfold.utils.geometry import vector
 
 
 Float = Union[float, torch.Tensor]

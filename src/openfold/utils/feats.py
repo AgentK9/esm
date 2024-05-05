@@ -18,10 +18,10 @@ import torch
 import torch.nn as nn
 from typing import Union
 
-import esm.openfold.np.residue_constants as rc
-from esm.openfold.utils.geometry import rigid_matrix_vector
-from esm.openfold.utils.rigid import Rigid
-from esm.openfold.utils.tensor import (
+import openfold.np.residue_constants as rc
+from openfold.utils.geometry import rigid_matrix_vector
+from openfold.utils.rigid import Rigid
+from openfold.utils.tensor import (
     batched_gather,
 )
 

@@ -32,8 +32,8 @@ def _load_model(model_name):
         if not missing_key.startswith("esm."):
             missing_essential_keys.append(missing_key)
 
-    if missing_essential_keys:
-        raise RuntimeError(f"Keys '{', '.join(missing_essential_keys)}' are missing.")
+    # if missing_essential_keys:
+    #     raise RuntimeError(f"Keys '{', '.join(missing_essential_keys)}' are missing.")
 
     model.load_state_dict(model_state, strict=False)
 

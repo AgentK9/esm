@@ -20,9 +20,9 @@ from abc import ABC, abstractmethod
 import torch
 import torch.nn as nn
 
-from esm.openfold.model.primitives import Linear, LayerNorm
-from esm.openfold.utils.precision import is_fp16_enabled
-from esm.openfold.utils.tensor import permute_final_dims
+from openfold.model.primitives import Linear, LayerNorm
+from openfold.utils.precision import is_fp16_enabled
+from openfold.utils.tensor import permute_final_dims
 
 
 class BaseTriangleMultiplicativeUpdate(nn.Module, ABC):
@@ -39,7 +39,7 @@ class BaseTriangleMultiplicativeUpdate(nn.Module, ABC):
             c:
                 Hidden channel dimension
         """
-        super(BaseTriangleMultiplicativeUpdate, self).__init__()
+        super().__init__()
         self.c_z = c_z
         self.c_hidden = c_hidden
         self._outgoing = _outgoing
@@ -114,7 +114,7 @@ class TriangleMultiplicativeUpdate(BaseTriangleMultiplicativeUpdate):
             c:
                 Hidden channel dimension
         """
-        super(TriangleMultiplicativeUpdate, self).__init__(
+        super().__init__(
             c_z=c_z, c_hidden=c_hidden, _outgoing=_outgoing
         )
 

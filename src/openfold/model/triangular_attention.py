@@ -19,9 +19,9 @@ from typing import Optional, List
 import torch
 import torch.nn as nn
 
-from esm.openfold.model.primitives import Linear, LayerNorm, Attention
-from esm.openfold.utils.chunk import chunk_layer
-from esm.openfold.utils.tensor import (
+from openfold.model.primitives import Linear, LayerNorm, Attention
+from openfold.utils.chunk import chunk_layer
+from openfold.utils.tensor import (
     permute_final_dims,
 )
 

@@ -20,13 +20,13 @@ from operator import add
 import numpy as np
 import torch
 
-from esm.openfold.config import NUM_RES, NUM_EXTRA_SEQ, NUM_TEMPLATES, NUM_MSA_SEQ
-from esm.openfold.np import residue_constants as rc
-from esm.openfold.utils.rigid import Rotation, Rigid
-from esm.openfold.utils.geometry.rigid_matrix_vector import Rigid3Array
-from esm.openfold.utils.geometry.rotation_matrix import Rot3Array
-from esm.openfold.utils.geometry.vector import Vec3Array
-from esm.openfold.utils.tensor import (
+from openfold.config import NUM_RES, NUM_EXTRA_SEQ, NUM_TEMPLATES, NUM_MSA_SEQ
+from openfold.np import residue_constants as rc
+from openfold.utils.rigid import Rotation, Rigid
+from openfold.utils.geometry.rigid_matrix_vector import Rigid3Array
+from openfold.utils.geometry.rotation_matrix import Rot3Array
+from openfold.utils.geometry.vector import Vec3Array
+from openfold.utils.tensor import (
     tree_map,
     tensor_tree_map,
     batched_gather,

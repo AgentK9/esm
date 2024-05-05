@@ -19,17 +19,17 @@ import torch
 import torch.nn as nn
 from typing import Dict, Optional, Tuple
 
-from esm.openfold.np import residue_constants
-from esm.openfold.utils.rigid import Rotation, Rigid
-from esm.openfold.utils.geometry.vector import Vec3Array, euclidean_distance
-from esm.openfold.utils.all_atom_multimer import get_rc_tensor
-from esm.openfold.utils.tensor import (
+from openfold.np import residue_constants
+from openfold.utils.rigid import Rotation, Rigid
+from openfold.utils.geometry.vector import Vec3Array, euclidean_distance
+from openfold.utils.all_atom_multimer import get_rc_tensor
+from openfold.utils.tensor import (
     tree_map,
     masked_mean,
     permute_final_dims,
 )
 import logging
-from esm.openfold.utils.tensor import tensor_tree_map
+from openfold.utils.tensor import tensor_tree_map
 
 logger = logging.getLogger(__name__)
 

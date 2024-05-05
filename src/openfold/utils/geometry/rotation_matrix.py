@@ -19,9 +19,9 @@ from typing import List
 
 import torch
 
-from esm.openfold.utils.geometry import utils
-from esm.openfold.utils.geometry import vector
-from esm.openfold.utils.tensor import tensor_tree_map
+from openfold.utils.geometry import utils
+from openfold.utils.geometry import vector
+from openfold.utils.tensor import tensor_tree_map
 
 COMPONENTS = ["xx", "xy", "xz", "yx", "yy", "yz", "zx", "zy", "zz"]
 

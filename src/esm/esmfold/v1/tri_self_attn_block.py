@@ -3,11 +3,11 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 import torch
-from esm.openfold.model.triangular_attention import (
+from openfold.model.triangular_attention import (
     TriangleAttentionEndingNode,
     TriangleAttentionStartingNode,
 )
-from esm.openfold.model.triangular_multiplicative_update import (
+from openfold.model.triangular_multiplicative_update import (
     TriangleMultiplicationIncoming,
     TriangleMultiplicationOutgoing,
 )

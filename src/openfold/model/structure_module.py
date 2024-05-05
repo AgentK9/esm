@@ -19,23 +19,23 @@ import torch
 import torch.nn as nn
 from typing import Optional, Tuple, Sequence, Union
 
-from esm.openfold.model.primitives import Linear, LayerNorm, ipa_point_weights_init_
-from esm.openfold.np.residue_constants import (
+from openfold.model.primitives import Linear, LayerNorm, ipa_point_weights_init_
+from openfold.np.residue_constants import (
     restype_rigid_group_default_frame,
     restype_atom14_to_rigid_group,
     restype_atom14_mask,
     restype_atom14_rigid_group_positions,
 )
-from esm.openfold.utils.geometry.quat_rigid import QuatRigid
-from esm.openfold.utils.geometry.rigid_matrix_vector import Rigid3Array
-from esm.openfold.utils.geometry.vector import Vec3Array, square_euclidean_distance
-from esm.openfold.utils.feats import (
+from openfold.utils.geometry.quat_rigid import QuatRigid
+from openfold.utils.geometry.rigid_matrix_vector import Rigid3Array
+from openfold.utils.geometry.vector import Vec3Array, square_euclidean_distance
+from openfold.utils.feats import (
     frames_and_literature_positions_to_atom14_pos,
     torsion_angles_to_frames,
 )
-from esm.openfold.utils.precision import is_fp16_enabled
-from esm.openfold.utils.rigid import Rotation, Rigid
-from esm.openfold.utils.tensor import (
+from openfold.utils.precision import is_fp16_enabled
+from openfold.utils.rigid import Rotation, Rigid
+from openfold.utils.tensor import (
     dict_multimap,
     permute_final_dims,
     flatten_final_dims,
