@@ -1,0 +1,11 @@
+ARG REGISTRY
+ARG IMAGE
+FROM ${REGISTRY}/${IMAGE}
+
+COPY . /opt/esmfold
+WORKDIR /opt/esmfold
+
+RUN apt-get update \
+    && apt-get install -y \
+        python3-poetry gcc \
+    && poetry install
