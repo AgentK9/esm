@@ -67,9 +67,9 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          build-args:
-            REGISTRY: docker.io
-            IMAGE: ubuntu
+          build-args: |
+            REGISTRY=docker.io
+            IMAGE=ubuntu
           tags: ${{ env.IMAGE_NAME }}:latest,${{ env.IMAGE_NAME }}:cuda
 
       - name: Build and push CPU Docker image
@@ -80,9 +80,9 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          build-args:
-            REGISTRY: docker.io/nvidia
-            IMAGE: cuda:12.4.1-base-ubuntu22.04
+          build-args: |
+            REGISTRY=docker.io/nvidia
+            IMAGE=cuda:12.4.1-base-ubuntu22.04
           tags: ${{ env.IMAGE_NAME }}:latest,${{ env.IMAGE_NAME }}:cpu
 
       # Sign the resulting Docker image digest except on PRs.
