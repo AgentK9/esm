@@ -2,7 +2,6 @@ from json import dumps
 from pathlib import Path
 from string import ascii_uppercase, ascii_lowercase
 import hashlib
-import re
 from typing import Literal
 
 import numpy as np
@@ -11,6 +10,10 @@ import click
 from scipy.special import softmax
 
 from esm.scripts.fold import create_batched_sequence_datasest
+
+
+class FASTAParseError(Exception):
+    pass
 
 
 def parse_output(output):
@@ -53,9 +56,9 @@ alphabet_list = list(ascii_uppercase + ascii_lowercase)
     required=True,
 )
 @click.option(
-    "--output-path",
-    type=click.Path(exists=False, path_type=Path),
-    help="Path to the output file",
+    "--output-dir",
+    type=click.Path(exists=True, dir_okay=True, file_okay=False, path_type=Path),
+    help="Path to the output dir",
     required=True,
 )
 @click.option(
@@ -65,19 +68,21 @@ alphabet_list = list(ascii_uppercase + ascii_lowercase)
     default="cuda",
     show_default=True,
 )
-def main(sequence_path: Path, model_path: Path, output_path: Path, processor: Literal["cuda", "cpu"]):
-    sequence = sequence_path.read_text()
-    sequence = re.sub("[^A-Z:]", "", sequence.replace("/", ":").upper())
-    sequence = re.sub(":+", ":", sequence)
-    sequence = re.sub("^[:]+", "", sequence)
-    sequence = re.sub("[:]+$", "", sequence)
-    copies = 1
-    sequence = ":".join([sequence] * copies)
-
-    seqs = sequence.split(":")
-    lengths = [len(s) for s in seqs]
-    length = sum(lengths)
-    print("length", length)
+def main(sequence_path: Path, model_path: Path, output_dir: Path, processor: Literal["cuda", "cpu"]):
+    all_sequences = {}
+    header = None
+    seq = None
+    for line in sequence_path.read_text().splitlines():
+        if not line:
+            continue
+        if line[0] == ">":
+            header = line[1:].strip()
+            seq = ""
+        else:
+            if not header:
+                raise FASTAParseError(f"FASTA file {sequence_path} does not start with a header")
+            seq += line
+            all_sequences[header] = seq
 
     model = torch.load(str(model_path))
     model.eval()
@@ -89,7 +94,7 @@ def main(sequence_path: Path, model_path: Path, output_path: Path, processor: Li
         model.cpu()
     else:
         raise ValueError(f"Invalid processor {processor}")
-    batched_sequences = create_batched_sequence_datasest([("test", sequence)])
+    batched_sequences = create_batched_sequence_datasest(all_sequences)
 
     num_completed = 0
     for headers, sequences in batched_sequences:
@@ -102,11 +107,14 @@ def main(sequence_path: Path, model_path: Path, output_path: Path, processor: Li
 
         output = {key: value.cpu() for key, value in output.items()}
         pdbs = model.output_to_pdb(output)
-        for header, seq, pdb_string, mean_plddt, ptm in zip(
-            headers, sequences, pdbs, output["mean_plddt"], output["ptm"]
+        for i, (header, seq, pdb_string, mean_plddt, ptm) in enumerate(
+            zip(
+                headers, sequences, pdbs, output["mean_plddt"], output["ptm"]
+            )
         ):
-            output_path.write_text(pdb_string)
-            output_path.with_suffix(".metadata.json").write_text(
+            output_file = output_dir / f"{i}.pdb"
+            output_file.write_text(pdb_string)
+            output_file.with_suffix(".metadata.json").write_text(
                 dumps(
                     {
                         "mean_plddt": mean_plddt.item(),

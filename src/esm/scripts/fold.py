@@ -62,11 +62,11 @@ def init_model_on_gpu_with_cpu_offloading(model):
 
 
 def create_batched_sequence_datasest(
-    sequences: list[tuple[str, str]], max_tokens_per_batch: int = 1024
+    sequences: dict[str, str], max_tokens_per_batch: int = 1024
 ) -> Generator[tuple[list[str], list[str]], None, None]:
 
     batch_headers, batch_sequences, num_tokens = [], [], 0
-    for header, seq in sequences:
+    for header, seq in sequences.items():
         if (len(seq) + num_tokens > max_tokens_per_batch) and num_tokens > 0:
             yield batch_headers, batch_sequences
             batch_headers, batch_sequences, num_tokens = [], [], 0
