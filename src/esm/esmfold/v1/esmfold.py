@@ -1,49 +1,33 @@
-# Copyright (c) Meta Platforms, Inc. and affiliates.
+# Copyright (c) Facebook, Inc. and its affiliates.
 #
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 import typing as T
 from dataclasses import dataclass, field
-from functools import partial
 
 import torch
-import torch.nn as nn
+
+from esm.data import Alphabet
+from esm.pretrained import esm2_t36_3B_UR50D
+from openfold.data.data_transforms import make_atom14_masks
+from openfold.np import residue_constants
+from openfold.utils.loss import compute_predicted_aligned_error, compute_tm
+from torch import nn
 from torch.nn import LayerNorm
 
-import esm
-from esm.data import Alphabet
 from esm.esmfold.v1.categorical_mixture import categorical_lddt
+from esm.esmfold.v1.trunk import FoldingTrunk, FoldingTrunkConfig
 from esm.esmfold.v1.misc import (
     batch_encode_sequences,
     collate_dense_tensors,
     output_to_pdb,
 )
-from esm.esmfold.v1.trunk import FoldingTrunk, FoldingTrunkConfig
-from openfold.data.data_transforms import make_atom14_masks
-from openfold.np import residue_constants
-from openfold import compute_predicted_aligned_error, compute_tm
-from esm.pretrained import load_model_and_alphabet
 
 
 @dataclass
 class ESMFoldConfig:
     trunk: T.Any = field(default_factory=FoldingTrunkConfig)
     lddt_head_hid_dim: int = 128
-
-
-esm_registry = {
-    "esm2_8M": partial(load_model_and_alphabet, "esm2_t6_8M_UR50D_500K"),
-    "esm2_8M_270K": esm.pretrained.esm2_t6_8M_UR50D,
-    "esm2_35M": partial(load_model_and_alphabet, "esm2_t12_35M_UR50D_500K"),
-    "esm2_35M_270K": esm.pretrained.esm2_t12_35M_UR50D,
-    "esm2_150M": partial(load_model_and_alphabet, "esm2_t30_150M_UR50D_500K"),
-    "esm2_150M_270K": partial(load_model_and_alphabet, "esm2_t30_150M_UR50D_270K"),
-    "esm2_650M": esm.pretrained.esm2_t33_650M_UR50D,
-    "esm2_650M_270K": partial(load_model_and_alphabet, "esm2_t33_650M_270K_UR50D"),
-    "esm2_3B": esm.pretrained.esm2_t36_3B_UR50D,
-    "esm2_3B_270K": partial(load_model_and_alphabet, "esm2_t36_3B_UR50D_500K"),
-    "esm2_15B": esm.pretrained.esm2_t48_15B_UR50D,
-}
 
 
 class ESMFold(nn.Module):
@@ -55,7 +39,7 @@ class ESMFold(nn.Module):
 
         self.distogram_bins = 64
 
-        self.esm, self.esm_dict = esm_registry.get(cfg.esm_type)()
+        self.esm, self.esm_dict = esm2_t36_3B_UR50D()
 
         self.esm.requires_grad_(False)
         self.esm.half()
@@ -74,13 +58,6 @@ class ESMFold(nn.Module):
             nn.ReLU(),
             nn.Linear(c_s, c_s),
         )
-        if cfg.use_esm_attn_map:
-            self.esm_z_mlp = nn.Sequential(
-                LayerNorm(self.esm_attns),
-                nn.Linear(self.esm_attns, c_z),
-                nn.ReLU(),
-                nn.Linear(c_z, c_z),
-            )
 
         # 0 is padding, N is unknown residues, N + 1 is mask.
         self.n_tokens_embed = residue_constants.restype_num + 3
@@ -130,18 +107,13 @@ class ESMFold(nn.Module):
         res = self.esm(
             esmaa,
             repr_layers=range(self.esm.num_layers + 1),
-            need_head_weights=self.cfg.use_esm_attn_map,
+            need_head_weights=False,
         )
         esm_s = torch.stack(
             [v for _, v in sorted(res["representations"].items())], dim=2
         )
         esm_s = esm_s[:, 1:-1]  # B, L, nLayers, C
-        esm_z = (
-            res["attentions"].permute(0, 4, 3, 1, 2).flatten(3, 4)[:, 1:-1, 1:-1, :]
-            if self.cfg.use_esm_attn_map
-            else None
-        )
-        return esm_s, esm_z
+        return esm_s
 
     def _mask_inputs_to_esm(self, esmaa, pattern):
         new_esmaa = esmaa.clone()
@@ -187,24 +159,20 @@ class ESMFold(nn.Module):
         if masking_pattern is not None:
             esmaa = self._mask_inputs_to_esm(esmaa, masking_pattern)
 
-        esm_s, esm_z = self._compute_language_model_representations(esmaa)
+        esm_s = self._compute_language_model_representations(esmaa)
 
         # Convert esm_s to the precision used by the trunk and
         # the structure module. These tensors may be a lower precision if, for example,
         # we're running the language model in fp16 precision.
         esm_s = esm_s.to(self.esm_s_combine.dtype)
+
         esm_s = esm_s.detach()
 
         # === preprocessing ===
         esm_s = (self.esm_s_combine.softmax(0).unsqueeze(0) @ esm_s).squeeze(2)
 
         s_s_0 = self.esm_s_mlp(esm_s)
-        if self.cfg.use_esm_attn_map:
-            esm_z = esm_z.to(self.esm_s_combine.dtype)
-            esm_z = esm_z.detach()
-            s_z_0 = self.esm_z_mlp(esm_z)
-        else:
-            s_z_0 = s_s_0.new_zeros(B, L, L, self.cfg.trunk.pairwise_state_dim)
+        s_z_0 = s_s_0.new_zeros(B, L, L, self.cfg.trunk.pairwise_state_dim)
 
         s_s_0 += self.embedding(aa)
 

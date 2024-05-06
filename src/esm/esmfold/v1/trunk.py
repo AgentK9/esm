@@ -1,4 +1,4 @@
-# Copyright (c) Meta Platforms, Inc. and affiliates.
+# Copyright (c) Facebook, Inc. and its affiliates.
 #
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
@@ -8,7 +8,6 @@ from dataclasses import dataclass, field
 
 import torch
 import torch.nn as nn
-
 from openfold.model.structure_module import StructureModule
 
 from esm.esmfold.v1.tri_self_attn_block import TriangularSelfAttentionBlock
@@ -104,7 +103,7 @@ class RelativePosition(nn.Module):
 
         if mask is not None:
             mask = mask[:, None, :] * mask[:, :, None]
-            diff[mask is False] = 0
+            diff[mask == False] = 0
 
         output = self.embedding(diff)
         return output
