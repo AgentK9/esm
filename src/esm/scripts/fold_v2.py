@@ -117,7 +117,7 @@ def main(sequence_path: Path, model_path: Path, output_dir: Path, processor: Lit
             output_file.with_suffix(".metadata.json").write_text(
                 dumps(
                     {
-                        "mean_plddt": mean_plddt.item(),
+                        "plddt": mean_plddt.item(),
                         "ptm": ptm.item(),
                     }
                 )
