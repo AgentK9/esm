@@ -2,6 +2,8 @@ from pathlib import Path
 from string import ascii_uppercase, ascii_lowercase
 import hashlib
 import re
+from typing import Literal
+
 import numpy as np
 import torch
 import click
@@ -55,7 +57,14 @@ alphabet_list = list(ascii_uppercase + ascii_lowercase)
     help="Path to the output file",
     required=True,
 )
-def main(sequence_path: Path, model_path: Path, output_path: Path):
+@click.option(
+    "--processor",
+    type=click.Choice(["cuda", "cpu"]),
+    help="Device to use for computation",
+    default="cuda",
+    show_default=True,
+)
+def main(sequence_path: Path, model_path: Path, output_path: Path, processor: Literal["cuda", "cpu"]):
     sequence = sequence_path.read_text()
     sequence = re.sub("[^A-Z:]", "", sequence.replace("/", ":").upper())
     sequence = re.sub(":+", ":", sequence)
@@ -70,10 +79,15 @@ def main(sequence_path: Path, model_path: Path, output_path: Path):
     print("length", length)
 
     model = torch.load(str(model_path))
-    model.esm.float()
     model.eval()
     model.set_chunk_size(None)
-    model.cpu()
+    if processor == "cuda":
+        model.cuda()
+    elif processor == "cpu":
+        model.esm.float()
+        model.cpu()
+    else:
+        raise ValueError(f"Invalid processor {processor}")
     batched_sequences = create_batched_sequence_datasest([("test", sequence)])
 
     num_completed = 0
