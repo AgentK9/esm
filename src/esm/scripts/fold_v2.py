@@ -1,3 +1,4 @@
+from json import dumps
 from pathlib import Path
 from string import ascii_uppercase, ascii_lowercase
 import hashlib
@@ -105,6 +106,14 @@ def main(sequence_path: Path, model_path: Path, output_path: Path, processor: Li
             headers, sequences, pdbs, output["mean_plddt"], output["ptm"]
         ):
             output_path.write_text(pdb_string)
+            output_path.with_suffix(".metadata.json").write_text(
+                dumps(
+                    {
+                        "mean_plddt": mean_plddt.item(),
+                        "ptm": ptm.item(),
+                    }
+                )
+            )
             num_completed += 1
 
 
