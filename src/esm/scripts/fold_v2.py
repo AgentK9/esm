@@ -97,7 +97,7 @@ def main(sequence_path: Path, model_path: Path, output_dir: Path, processor: Lit
     batched_sequences = create_batched_sequence_datasest(all_sequences)
 
     num_completed = 0
-    for headers, sequences in batched_sequences:
+    for i, (headers, sequences) in enumerate(batched_sequences):
         try:
             output = model.infer(sequences)
         except RuntimeError as e:
@@ -107,12 +107,12 @@ def main(sequence_path: Path, model_path: Path, output_dir: Path, processor: Lit
 
         output = {key: value.cpu() for key, value in output.items()}
         pdbs = model.output_to_pdb(output)
-        for i, (header, seq, pdb_string, mean_plddt, ptm) in enumerate(
+        for j, (header, seq, pdb_string, mean_plddt, ptm) in enumerate(
             zip(
                 headers, sequences, pdbs, output["mean_plddt"], output["ptm"]
             )
         ):
-            output_file = output_dir / f"{i}.pdb"
+            output_file = output_dir / f"{i*j}.pdb"
             output_file.write_text(pdb_string)
             output_file.with_suffix(".metadata.json").write_text(
                 dumps(
