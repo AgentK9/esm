@@ -112,7 +112,7 @@ def main(sequence_path: Path, model_path: Path, output_dir: Path, processor: Lit
                 headers, sequences, pdbs, output["mean_plddt"], output["ptm"]
             )
         ):
-            output_file = output_dir / f"{i*j}.pdb"
+            output_file = output_dir / f"{i}_{j}.pdb"
             output_file.write_text(pdb_string)
             output_file.with_suffix(".metadata.json").write_text(
                 dumps(
